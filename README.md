@@ -1,124 +1,134 @@
 # Snap-Solver
 
-Snap-Solver 是一个可以通过电脑截屏并在移动设备上查看与处理截图的应用程序。本项目实现了截图上传、裁剪、并调用 GPT 进行解答的功能。
+Snap-Solver-Local 是一个基于 OpenAI API 的本地题目解答工具，支持截图识别和自动解答功能。它可以部署在局域网中，让多个设备都能方便地使用这个服务。
 
-## 功能介绍
+如果想部署在互联网(Heroku)，请访问项目：[Snap-Solver-Web](https://github.com/zippland/snap-solver-web)
+(产生此需求的可能原因：比如在国内想使用GPT-4o/Claude-3.5 Sonnet)
 
-- **截图上传**：通过本地程序截屏后，图片将被上传到服务器。
-- **裁剪处理**：用户可以在网页上选择图片的裁剪区域。
-- **GPT 解答**：裁剪后的截图会发送到 GPT 进行题目解答。
+## 功能特点
 
-## 目录结构
+- 📸 快捷截图：使用快捷键快速截取屏幕上的题目
+- 🔍 文字识别：自动提取图片中的文字内容
+- 🤖 智能解答：使用 GPT-4o 模型进行题目分析和解答
+- 🌐 局域网访问：支持在同一局域网内的多设备访问
+- 💻 跨平台支持：支持 Windows、Linux 和 macOS
 
-```
-Snap-Solver/
-├── public/
-│   └── index.html  # 前端界面
-├── index.js        # 后端服务器
-├── snap.py         # 本地截屏程序
-├── .env            # 环境变量文件（需配置 GPT API Key）
-└── README.md       # 项目说明文件
-```
+## 系统要求
 
-## 前端技术
+- Node.js 14.0 或更高版本
+- Python 3.x
+- OpenAI API 密钥
 
-- **HTML/CSS/JavaScript**：使用 HTML 和 CSS 创建了简洁的用户界面，并通过 JavaScript 实现功能交互。
-- **Cropper.js**：用于裁剪图片的第三方库。
-- **Socket.io**：用于前后端实时通信，传递图片和裁剪数据。
+## 安装步骤
 
-## 后端技术
-
-- **Node.js & Express**：服务器端框架，用于处理上传的截图和裁剪区域的保存。
-- **Multer**：用于处理多部分表单数据（图片上传）。
-- **Sharp**：处理和裁剪图片。
-- **OpenAI API**：调用 GPT 进行图片内题目的解答。
-
-## 使用步骤
-
-### 1. 在 Heroku 上部署
-
-#### 部署步骤
-
-1. 确保你已经安装了 [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) 并注册了 Heroku 帐号。
-2. 在终端中登录到 Heroku：
-
-   ```bash
-   heroku login
-   ```
-
-3. 在你的项目根目录下，运行以下命令创建一个新的 Heroku 应用：
-
-   ```bash
-   heroku create
-   ```
-
-4. 将你的代码推送到 Heroku：
-
-   ```bash
-   git push heroku master
-   ```
-
-5. 设置 OpenAI API Key 作为环境变量：
-
-   ```bash
-   heroku config:set OPENAI_API_KEY=your_openai_api_key
-   ```
-
-6. 部署完成后，运行以下命令打开你的 Heroku 应用：
-
-   ```bash
-   heroku open
-   ```
-
-7. 你可以通过 Heroku 提供的 URL 访问 Snap-Solver 应用。
-
-#### 部署完成后的使用方法
-
-在部署完成并访问 Heroku 应用后，你可以通过本地运行的 `snap.py` 程序截图，截图将自动上传到服务器并显示在移动设备的浏览器上。你可以裁剪截图，并提交给 GPT 进行解答。
-
-### 2. 修改 `snap.py` 中的服务器网址和热键
-
-#### 定位并修改上传网址
-
-在 `snap.py` 中，你需要指定截图上传的服务器地址。默认的代码如下：
-
-```python
-response = requests.post('http://localhost:3000/upload', files=files)
+1. 克隆项目并安装依赖：
+```bash
+git clone https://github.com/zippland/snap-solver-local.git
+cd snap-solver-local
+npm install
 ```
 
-如果你已将项目部署到 Heroku 上，请将 `localhost` 修改为你的 Heroku 应用 URL。例如，如果你的 Heroku 项目地址是 `https://your-app-name.herokuapp.com/`，请将上述代码修改为：
-
-```python
-response = requests.post('https://your-app-name.herokuapp.com/upload', files=files)
+2. 安装 Python 依赖：
+```bash
+pip install keyboard Pillow requests
 ```
 
-这样，本地截屏程序将截图上传到 Heroku 部署的服务器。
+3. 创建配置文件：
+```bash
+# 创建 .env 文件
+cp .env.example .env
 
-#### 修改截屏热键
-
-`snap.py` 默认使用 `Alt+Ctrl+S` 作为截屏热键。你可以根据需要更改此组合键。找到以下代码：
-
-```python
-keyboard.add_hotkey('alt+ctrl+s', take_screenshot)
+# 编辑 .env 文件，填入你的配置
+HOST=0.0.0.0
+PORT=3000
+OPENAI_API_KEY=your_api_key_here
 ```
 
-将 `alt+ctrl+s` 替换为你想要的组合键。例如，如果你想改为 `Alt+Shift+P`，可以这样修改：
+## 启动服务
 
-```python
-keyboard.add_hotkey('alt+shift+p', take_screenshot)
+### Windows
+```bash
+# 直接运行
+start.bat
+
+# 或使用 npm
+npm start
 ```
 
-你可以参考 [keyboard](https://pypi.org/project/keyboard/) 模块的文档了解更多关于热键设置的信息。
+### Linux/Mac
+```bash
+# 添加执行权限
+chmod +x start.sh
 
-## 技术要求
+# 运行服务
+./start.sh
 
-- Node.js 版本 14 以上
-- Python 3.x（用于本地截图）
+# 或使用 npm
+npm start
+```
 
-## 贡献
+## 使用方法
 
-欢迎任何形式的贡献！如果你发现问题或有功能建议，欢迎通过 [GitHub](https://github.com/Zippland/Snap-Solver) 提交 issue 或 pull request。
+1. 启动服务后，在浏览器访问：
+   - 本机访问：http://localhost:3000
+   - 局域网访问：http://[服务器IP]:3000
+
+2. 使用截图功能：
+   - Windows/Linux：按下 `Alt + Ctrl + S` 进行截图
+   - 截图后自动上传并识别
+
+3. 解题流程：
+   - 上传图片后可以选择区域
+   - 点击"提取文本"获取题目内容
+   - 点击"解答题目"获取答案
+
+## 快捷键
+
+- `Alt + Ctrl + S`: 截取屏幕
+- `ESC`: 退出截图程序
+
+## 配置说明
+
+在 `.env` 文件中可以配置以下参数：
+```env
+# 服务器监听地址 (0.0.0.0 表示所有网卡)
+HOST=0.0.0.0
+
+# 服务器端口
+PORT=3000
+
+# OpenAI API 密钥
+OPENAI_API_KEY=your_api_key_here
+
+# 可选：允许访问的 IP 地址列表（用逗号分隔）
+ALLOWED_IPS=192.168.1.100,192.168.1.101
+```
+
+## 开发模式
+
+使用开发模式运行服务（支持热重载）：
+```bash
+npm run dev
+```
+
+## 安全建议
+
+1. 设置允许访问的 IP 范围
+2. 定期更新依赖包
+3. 使用强密码保护 API 密钥
+4. 监控服务器日志
+
+## 贡献指南
+
+1. Fork 项目
+2. 创建特性分支
+3. 提交变更
+4. 发起 Pull Request
 
 ## 许可证
 
-本项目基于 MIT 许可证开源。
+MIT License
+
+## 支持与反馈
+
+如有问题或建议，请提交 Issue 

@@ -4,8 +4,8 @@
   "description": "Snap-Solver is a tool for uploading and processing screenshots, and providing solutions through GPT.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node scripts/start.js",
+    "dev": "nodemon scripts/start.js"
   },
   "author": "Your Name",
   "license": "MIT",
