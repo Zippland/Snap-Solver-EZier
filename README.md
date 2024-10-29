@@ -1,8 +1,9 @@
-# Snap-Solver
+# Snap-Solver-Local
 
 Snap-Solver-Local 是一个基于 OpenAI API 的本地题目解答工具，支持截图识别和自动解答功能。它可以部署在局域网中，让多个设备都能方便地使用这个服务。
 
 如果想部署在互联网(Heroku)，请访问项目：[Snap-Solver-Web](https://github.com/zippland/snap-solver-web)
+
 (产生此需求的可能原因：比如在国内想使用GPT-4o/Claude-3.5 Sonnet)
 
 ## 功能特点
