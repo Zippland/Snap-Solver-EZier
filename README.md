@@ -4,6 +4,12 @@
 
 Snap-Solver 是一个智能题目解答工具，只需按下快捷键截图，即可自动识别题目内容并给出详细解答。支持部署在局域网中，让多个设备都能便捷使用。
 
+## 🛜 云端版本
+
+如果想部署在云端（Heroku），请访问项目：[Snap-Solver-Web](https://github.com/zippland/snap-solver-web)
+
+(产生此需求的可能原因：希望在境内可以访问gpt-4o或者Claude-3.5 Sonnet)
+
 ## ✨ 特色功能
 
 - 🎯 **一键截图**：使用快捷键（Alt+Ctrl+S）即可截取屏幕任意区域
