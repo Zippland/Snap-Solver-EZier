@@ -1,50 +1,48 @@
-// start-all.sh
 #!/bin/bash
 
-echo "======================================"
-echo "         启动 Snap-Solver 服务"
-echo "======================================"
-echo
+# start.sh
+set -e
 
-# 获取本机IP地址
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    ip=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n 1)
-else
-    # Linux
-    ip=$(hostname -I | awk '{print $1}')
+# 设置颜色输出
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# 获取脚本所在目录
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+echo -e "${GREEN}=================================================${NC}"
+echo -e "${GREEN}             Snap-Solver 一键启动工具${NC}"
+echo -e "${GREEN}=================================================${NC}"
+
+# 检查权限
+if [ "$EUID" -ne 0 ]; then 
+    echo -e "${YELLOW}[!] 请使用 sudo 运行此脚本${NC}"
+    exit 1
 fi
 
-# 启动 Node.js 服务
-echo "[1/2] 启动 Web 服务..."
-node scripts/start.js &
-NODE_PID=$!
+# 创建日志目录
+mkdir -p logs
 
-# 等待几秒确保服务启动
-sleep 3
+# 安装依赖
+echo "[*] 安装依赖..."
+npm install >>logs/npm_install.log 2>&1
+pip3 install keyboard Pillow requests >>logs/pip_install.log 2>&1
 
-# 启动 Python 截图服务
-echo "[2/2] 启动截图服务..."
-python3 snap.py &
-PYTHON_PID=$!
+# 检查 .env 文件
+if [ ! -f ".env" ]; then
+    cat > .env << EOL
+HOST=0.0.0.0
+PORT=3000
+OPENAI_API_KEY=your_api_key_here
+EOL
+    echo "[!] 已创建 .env 文件，请设置 OpenAI API 密钥"
+    nano .env
+fi
 
-# 清理屏幕并显示访问信息
-clear
-echo "======================================"
-echo "Snap-Solver 服务已启动！"
-echo "======================================"
-echo
-echo "快捷键说明："
-echo "- Alt + Ctrl + S: 截图"
-echo "- ESC: 退出截图程序"
-echo
-echo "访问地址："
-echo "- 本地访问：http://localhost:3000"
-echo "- 局域网访问：http://$ip:3000"
-echo
-echo "按 Ctrl+C 停止所有服务"
-echo "======================================"
+# 设置可执行权限
+chmod +x scripts/start.js
 
-# 等待用户中断
-trap "kill $NODE_PID $PYTHON_PID; exit" INT
-wait
+echo "[*] 启动服务..."
+npm start

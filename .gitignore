@@ -5,3 +5,4 @@ System.spec
 
 dist
 build
+logs/
