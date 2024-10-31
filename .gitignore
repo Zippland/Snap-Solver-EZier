@@ -6,6 +6,4 @@ System.spec
 dist
 build
 
-logs\
-logs\npm_install.log
-logs\pip_install.log
+logs/
