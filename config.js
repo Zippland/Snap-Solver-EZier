@@ -1,12 +1,15 @@
 require('dotenv').config();
 
 const config = {
-    // 允许配置 host，默认监听所有网卡
     host: process.env.HOST || '0.0.0.0',
     port: process.env.PORT || 3000,
-    // 可以配置允许访问的 IP 范围
     allowedIPs: process.env.ALLOWED_IPS ? process.env.ALLOWED_IPS.split(',') : [],
-    // GPT模型相关配置
+    proxy: {
+        enabled: process.env.USE_PROXY === 'true',
+        host: process.env.PROXY_HOST || '127.0.0.1',
+        port: parseInt(process.env.PROXY_PORT) || 4780,
+        protocol: (process.env.PROXY_PROTOCOL || 'http').toLowerCase().trim()
+    },
     openai: {
         apiKey: process.env.OPENAI_API_KEY,
         extractionModel: 'gpt-4o-mini',
@@ -17,5 +20,14 @@ const config = {
         maxFileSize: '100mb'
     }
 };
+
+// 在启动时打印代理配置
+if (config.proxy.enabled) {
+    console.log('Proxy configuration:', {
+        protocol: config.proxy.protocol,
+        host: config.proxy.host,
+        port: config.proxy.port
+    });
+}
 
 module.exports = config;

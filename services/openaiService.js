@@ -1,10 +1,46 @@
 const axios = require('axios');
 const config = require('../config');
+const tunnel = require('tunnel');
 
 class OpenAIService {
+    static createAxiosInstance() {
+        const axiosConfig = {
+            headers: {
+                'Authorization': `Bearer ${config.openai.apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        if (config.proxy.enabled) {
+            const tunnelConfig = {
+                proxy: {
+                    host: config.proxy.host,
+                    port: config.proxy.port
+                }
+            };
+
+            // 创建代理agent
+            if (config.proxy.protocol === 'https') {
+                axiosConfig.httpsAgent = tunnel.httpsOverHttps(tunnelConfig);
+            } else {
+                axiosConfig.httpsAgent = tunnel.httpsOverHttp(tunnelConfig);
+            }
+
+            console.log('Proxy configuration:', {
+                protocol: config.proxy.protocol,
+                host: config.proxy.host,
+                port: config.proxy.port
+            });
+        }
+
+        return axios.create(axiosConfig);
+    }
+
     static async extractText(base64Image) {
         try {
-            const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            const client = this.createAxiosInstance();
+            
+            const response = await client.post('https://api.openai.com/v1/chat/completions', {
                 model: config.openai.extractionModel,
                 messages: [
                     {
@@ -24,26 +60,27 @@ class OpenAIService {
                     }
                 ],
                 max_tokens: config.openai.maxTokens
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${config.openai.apiKey}`,
-                    'Content-Type': 'application/json'
-                }
             });
 
-            if (!response.data || !response.data.choices || !response.data.choices[0]) {
+            if (!response.data?.choices?.[0]?.message?.content) {
                 throw new Error('Invalid response from OpenAI API');
             }
 
             return response.data.choices[0].message.content.trim();
         } catch (error) {
-            console.error('Text Extraction Error:', error.response?.data || error.message);
+            console.error('Text Extraction Error:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
             throw new Error('Failed to extract text from image');
         }
     }
 
     static async solveProblem(content, isImage = false) {
         try {
+            const client = this.createAxiosInstance();
+            
             const requestBody = {
                 model: config.openai.solvingModel,
                 messages: isImage ? [
@@ -71,24 +108,22 @@ class OpenAIService {
                 max_tokens: config.openai.maxTokens
             };
 
-            const response = await axios.post(
+            const response = await client.post(
                 'https://api.openai.com/v1/chat/completions',
-                requestBody,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${config.openai.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
+                requestBody
             );
 
-            if (!response.data || !response.data.choices || !response.data.choices[0]) {
+            if (!response.data?.choices?.[0]?.message?.content) {
                 throw new Error('Invalid response from OpenAI API');
             }
 
             return response.data.choices[0].message.content.trim();
         } catch (error) {
-            console.error('Problem Solving Error:', error.response?.data || error.message);
+            console.error('Problem Solving Error:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
             throw new Error('Failed to solve the problem');
         }
     }
