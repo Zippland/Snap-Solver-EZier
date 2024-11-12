@@ -27,7 +27,7 @@ socket.on('new_image_uploaded', (data) => {
     uploadedImageData = `data:image/png;base64,${data.image}`;
     uploadedImage.src = uploadedImageData;
     imageWrapper.style.display = 'block';
-    instruction.textContent = '请框选题目区域。';
+    instruction.textContent = '请框选题目区域，支持双指缩放。';
     uploadIcon.style.display = 'none';
 
     buttonGroup.style.display = 'flex'; // 显示两个按钮
