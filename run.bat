@@ -183,6 +183,7 @@ echo     局域网访问: http://%IP%:3000
 echo.
 echo [*] 快捷键说明:
 echo     截图: Alt + Ctrl + S
+echo     退出截图: ESC
 echo.
 echo [*] 正在启动服务...
 echo.

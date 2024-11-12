@@ -25,3 +25,6 @@ def take_screenshot():
 
 # 监听热键，比如 alt+ctrl+s
 keyboard.add_hotkey('alt+ctrl+s', take_screenshot)
+
+# 程序持续运行，等待用户按下热键
+keyboard.wait('esc')  # 用户按 ESC 退出监听
