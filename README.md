@@ -4,18 +4,25 @@
 
 Snap-Solver 是一个智能题目解答工具，只需按下快捷键截图，即可自动识别题目内容并给出详细解答。支持部署在局域网中，让多个设备都能便捷使用。
 
-## 🛜 云端版本
+## 📋 目录
 
-如果想部署在云端（Heroku），请访问项目：[Snap-Solver-Web](https://github.com/zippland/snap-solver-web)
-
-(产生此需求的可能原因：希望在境内可以访问gpt-4o或者Claude-3.5 Sonnet)
+- [特色功能](#-特色功能)
+- [使用前准备](#-使用前准备)
+- [快速开始](#-快速开始)
+- [使用说明](#-使用说明)
+- [高级配置](#%EF%B8%8F-高级配置)
+- [代理配置](#-代理配置)
+- [常见问题](#-常见问题)
+- [安全建议](#-安全建议)
+- [参与贡献](#-参与贡献)
 
 ## ✨ 特色功能
 
 - 🎯 **一键截图**：使用快捷键（Alt+Ctrl+S）即可截取屏幕任意区域
 - 🔍 **智能识别**：自动提取图片中的文字内容，支持各类题目格式
-- 🤖 **AI 解答**：采用 GPT-4 模型，提供详细的解题思路和答案
+- 🤖 **AI 解答**：采用 GPT-4o 模型，提供详细的解题思路和答案
 - 🌐 **局域网共享**：一处部署，多处使用，支持家庭/教室场景
+- 🔐 **代理支持**：内置代理配置，支持通过代理访问 OpenAI API
 - 💻 **跨平台支持**：Windows、MacOS、Linux 全平台可用
 
 ## 📋 使用前准备
@@ -25,8 +32,9 @@ Snap-Solver 是一个智能题目解答工具，只需按下快捷键截图，�
    - 在 API 设置页面获取 API Key
 
 2. **运行环境**:
-   - [Node.js](https://nodejs.org/) 14.0 或更高版本
+   - [Node.js](https://nodejs.org/) 20.x 或更高版本
    - [Python](https://www.python.org/downloads/) 3.x 版本
+   - （可选）代理软件，如 Clash、v2ray 等
 
 ## 🚀 快速开始
 
@@ -71,17 +79,19 @@ sudo ./start.sh
 
 ## ⚙️ 高级配置
 
-### 修改配置文件 (.env)
+### 配置文件说明 (.env)
 
 ```env
-# 服务监听地址 (0.0.0.0 表示允许所有网络访问)
-HOST=0.0.0.0
+# 基础配置
+HOST=0.0.0.0           # 服务监听地址
+PORT=3000              # 服务端口号
+OPENAI_API_KEY=your_api_key_here  # OpenAI API密钥
 
-# 服务端口号
-PORT=3000
-
-# OpenAI API 密钥
-OPENAI_API_KEY=your_api_key_here
+# 代理设置
+USE_PROXY=false        # 是否启用代理
+PROXY_HOST=127.0.0.1   # 代理服务器地址
+PROXY_PORT=4780        # 代理服务器端口
+PROXY_PROTOCOL=http    # 代理协议(http/https)
 ```
 
 ### 自定义快捷键
@@ -91,6 +101,41 @@ OPENAI_API_KEY=your_api_key_here
 # 默认是 alt+ctrl+s
 keyboard.add_hotkey('alt+ctrl+s', take_screenshot)
 ```
+
+## 🌐 代理配置
+
+### 常见代理软件配置
+
+#### 1. Clash
+```env
+USE_PROXY=true
+PROXY_HOST=127.0.0.1
+PROXY_PORT=7890        # Clash 默认 HTTP 代理端口
+PROXY_PROTOCOL=http
+```
+
+#### 2. v2ray
+```env
+USE_PROXY=true
+PROXY_HOST=127.0.0.1
+PROXY_PORT=10809       # v2ray 默认 HTTP 代理端口
+PROXY_PROTOCOL=http
+```
+
+### 代理故障排查
+
+1. **检查代理状态**:
+   - 确认代理软件是否正常运行
+   - 验证代理端口是否正确
+   - 测试代理连接：
+     ```bash
+     curl -x http://127.0.0.1:你的代理端口 https://api.openai.com/v1/chat/completions -v
+     ```
+
+2. **常见错误处理**:
+   - 连接超时：检查代理服务是否正常运行
+   - 证书错误：确认 HTTPS 代理配置是否正确
+   - 认证失败：检查 API Key 是否正确
 
 ## 🔧 常见问题
 
@@ -114,13 +159,15 @@ keyboard.add_hotkey('alt+ctrl+s', take_screenshot)
 
 1. 检查 API Key 是否正确设置
 2. 确认 API Key 是否有足够的额度
-3. 检查网络连接是否正常
+3. 检查代理配置是否正确
+4. 尝试更换代理或直连测试
 
 ## 🔐 安全建议
 
 1. 避免将 API Key 分享给他人
 2. 定期更新系统和依赖包
 3. 建议只在可信任的局域网中使用
+4. 使用代理时注意数据安全性
 
 ## 🤝 参与贡献
 
@@ -134,7 +181,10 @@ keyboard.add_hotkey('alt+ctrl+s', take_screenshot)
 
 ## 📞 获取帮助
 
-- 提交 Issue
+如果遇到问题：
+1. 查看上述常见问题解答
+2. 提交 Issue 描述你的问题
+3. 在小红书获取支持，可提供定制服务
 
 ## 📜 开源协议
 
