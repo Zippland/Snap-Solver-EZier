@@ -1,5 +1,5 @@
 const ImageService = require('../services/imageService');
-const OpenAIService = require('../services/openaiService');
+const AIServiceFactory = require('../services/aiServiceFactory');
 
 class ImageController {
     constructor(io) {
@@ -27,7 +27,9 @@ class ImageController {
         try {
             const buffer = Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
             const base64CroppedImage = await ImageService.processImage(buffer, cropSettings);
-            const extractedText = await OpenAIService.extractText(base64CroppedImage);
+            
+            const ExtractionService = AIServiceFactory.getExtractionService();
+            const extractedText = await ExtractionService.extractText(base64CroppedImage);
             
             res.json({ extractedText });
         } catch (error) {
@@ -42,7 +44,9 @@ class ImageController {
         try {
             const buffer = Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
             const base64CroppedImage = await ImageService.processImage(buffer, cropSettings);
-            const answer = await OpenAIService.solveProblem(base64CroppedImage, true);
+            
+            const SolvingService = AIServiceFactory.getSolvingService();
+            const answer = await SolvingService.solveProblem(base64CroppedImage, true);
             
             res.json({ answer });
         } catch (error) {

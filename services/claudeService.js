@@ -2,12 +2,13 @@ const axios = require('axios');
 const config = require('../config');
 const tunnel = require('tunnel');
 
-class OpenAIService {
+class ClaudeService {
     static createAxiosInstance() {
         const axiosConfig = {
             headers: {
-                'Authorization': `Bearer ${config.openai.apiKey}`,
-                'Content-Type': 'application/json'
+                'x-api-key': config.claude.apiKey,
+                'Content-Type': 'application/json',
+                'anthropic-version': '2023-06-01'
             }
         };
 
@@ -33,16 +34,18 @@ class OpenAIService {
         try {
             const client = this.createAxiosInstance();
             
-            const response = await client.post('https://api.openai.com/v1/chat/completions', {
-                model: config.openai.model,
+            const response = await client.post('https://api.anthropic.com/v1/messages', {
+                model: config.claude.model,
                 messages: [
                     {
                         role: 'user',
                         content: [
                             {
-                                type: 'image_url',
-                                image_url: {
-                                    url: `data:image/png;base64,${base64Image}`
+                                type: 'image',
+                                source: {
+                                    type: 'base64',
+                                    media_type: 'image/png',
+                                    data: base64Image
                                 }
                             },
                             {
@@ -52,21 +55,21 @@ class OpenAIService {
                         ]
                     }
                 ],
-                max_tokens: config.openai.maxTokens
+                max_tokens: config.claude.maxTokens
             });
 
-            if (!response.data?.choices?.[0]?.message?.content) {
-                throw new Error('Invalid response from OpenAI API');
+            if (!response.data?.content?.[0]?.text) {
+                throw new Error('Invalid response from Claude API');
             }
 
-            return response.data.choices[0].message.content.trim();
+            return response.data.content[0].text.trim();
         } catch (error) {
-            console.error('Text Extraction Error:', {
+            console.error('Claude Text Extraction Error:', {
                 message: error.message,
                 response: error.response?.data,
                 status: error.response?.status
             });
-            throw new Error('Failed to extract text using OpenAI');
+            throw new Error('Failed to extract text using Claude');
         }
     }
 
@@ -79,9 +82,11 @@ class OpenAIService {
                     role: 'user',
                     content: [
                         {
-                            type: 'image_url',
-                            image_url: {
-                                url: `data:image/png;base64,${content}`
+                            type: 'image',
+                            source: {
+                                type: 'base64',
+                                media_type: 'image/png',
+                                data: content
                             }
                         },
                         {
@@ -97,26 +102,26 @@ class OpenAIService {
                 }
             ];
 
-            const response = await client.post('https://api.openai.com/v1/chat/completions', {
-                model: config.openai.model,
+            const response = await client.post('https://api.anthropic.com/v1/messages', {
+                model: config.claude.model,
                 messages: messages,
-                max_tokens: config.openai.maxTokens
+                max_tokens: config.claude.maxTokens
             });
 
-            if (!response.data?.choices?.[0]?.message?.content) {
-                throw new Error('Invalid response from OpenAI API');
+            if (!response.data?.content?.[0]?.text) {
+                throw new Error('Invalid response from Claude API');
             }
 
-            return response.data.choices[0].message.content.trim();
+            return response.data.content[0].text.trim();
         } catch (error) {
-            console.error('Problem Solving Error:', {
+            console.error('Claude Problem Solving Error:', {
                 message: error.message,
                 response: error.response?.data,
                 status: error.response?.status
             });
-            throw new Error('Failed to solve problem using OpenAI');
+            throw new Error('Failed to solve problem using Claude');
         }
     }
 }
 
-module.exports = OpenAIService;
+module.exports = ClaudeService;

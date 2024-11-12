@@ -1,11 +1,12 @@
-const OpenAIService = require('../services/openaiService');
+const AIServiceFactory = require('../services/aiServiceFactory');
 
 class ProblemController {
     solveProblem = async (req, res) => {
         const { extractedText } = req.body;
         
         try {
-            const answer = await OpenAIService.solveProblem(extractedText);
+            const SolvingService = AIServiceFactory.getSolvingService();
+            const answer = await SolvingService.solveProblem(extractedText);
             res.json({ answer });
         } catch (error) {
             console.error('Solving Error:', error);

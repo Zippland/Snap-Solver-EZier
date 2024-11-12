@@ -131,24 +131,22 @@ if %errorLevel% neq 0 (
 echo [√] Python 依赖安装完成
 echo.
 
-::: 检查并创建 .env 文件
+:: 检查并创建 .env 文件
 if not exist ".env" (
-    echo [*] 正在创建配置文件...
-    >".env" (
-        echo HOST=0.0.0.0
-        echo PORT=3000
-        echo OPENAI_API_KEY=your_api_key_here
-        echo.
-        echo # Proxy Settings
-        echo USE_PROXY=false
-        echo PROXY_HOST=127.0.0.1
-        echo PROXY_PORT=4780
-        echo PROXY_PROTOCOL=http
+    echo [*] 创建配置文件...
+    if exist ".env.example" (
+        copy ".env.example" ".env" >nul
+        echo [√] 配置文件已从 .env.example 创建
+    ) else (
+        echo [ERROR] .env.example 文件不存在！
+        pause
+        exit /b 1
     )
     
-    echo [*] 请在记事本中设置 OpenAI API Key
+    echo [*] 请在记事本中设置你的 API Keys 等配置
+    echo [*] 参数介绍可参考 README 文件
     echo [*] 设置完成后保存并关闭记事本
-    >nul timeout /t 2
+    timeout /t 2 >nul
     notepad .env
 )
 
