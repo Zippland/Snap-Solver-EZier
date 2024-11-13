@@ -11,10 +11,31 @@ from pathlib import Path
 import socket
 import urllib.request
 import time
+import base64
+from datetime import datetime
+import json
 
 class SnapSolverGUI:
     def __init__(self, root):
         self.root = root
+        
+        # 启动时检查许可证
+        from utils.license_utils import LicenseUtils
+        license_utils = LicenseUtils()
+        license_key = license_utils.load_license()
+        
+        if not license_key:
+            messagebox.showerror("错误", "未找到有效许可证")
+            self.root.destroy()
+            sys.exit(1)
+            
+        is_valid, message = license_utils.verify_license_key(license_key)
+        if not is_valid:
+            messagebox.showerror("错误", message)  # 显示具体错误（包括过期信息）
+            self.root.destroy()
+            sys.exit(1)
+            
+        # 许可证验证通过，继续初始化界面
         self.root.title("Snap-Solver 配置工具")
         self.root.geometry("600x750")
         
@@ -36,12 +57,22 @@ class SnapSolverGUI:
         # 状态显示区域
         self.status_frame = ttk.LabelFrame(main_frame, text="状态", padding=10)
         self.status_frame.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
-        
-        self.status_label = ttk.Label(self.status_frame, text="准备就绪")
-        self.status_label.grid(row=0, column=0, sticky=(tk.W, tk.E))
-        
+
+        status_info_frame = ttk.Frame(self.status_frame)
+        status_info_frame.grid(row=0, column=0, sticky=(tk.W, tk.E))
+
+        self.status_label = ttk.Label(status_info_frame, text="准备就绪")
+        self.status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        # 添加许可证状态显示
+        self.license_label = ttk.Label(status_info_frame, text="正在加载许可证信息...", font=('Arial', 9))
+        self.license_label.pack(side=tk.RIGHT, padx=10)
+
         self.url_label = ttk.Label(self.status_frame, text="")
         self.url_label.grid(row=1, column=0, sticky=(tk.W, tk.E))
+
+        # 开始许可证倒计时更新
+        self.update_license_status()
 
         # 配置区域
         config_frame = ttk.LabelFrame(main_frame, text="配置", padding=10)
@@ -131,6 +162,74 @@ class SnapSolverGUI:
         
         # 加载现有配置
         self.load_config()
+
+    def update_license_status(self):
+        """更新许可证状态显示"""
+        try:
+            from utils.license_utils import LicenseUtils
+            license_utils = LicenseUtils()
+            
+            # 获取保存的许可证
+            license_key = license_utils.load_license()
+            if not license_key:
+                self.license_label.config(text="无有效许可证", foreground="red")
+                # 继续更新
+                self.root.after(60000, self.update_license_status)
+                return
+
+            # 验证许可证
+            is_valid, message = license_utils.verify_license_key(license_key)
+            if not is_valid:
+                self.license_label.config(text=message, foreground="red")
+                self.root.after(60000, self.update_license_status)
+                return
+
+            try:
+                # 解析许可证数据（使用和验证相同的方式）
+                encrypted_data = base64.urlsafe_b64decode(license_key.strip())
+                decrypted_data = license_utils._cipher_suite.decrypt(encrypted_data)
+                license_data = json.loads(decrypted_data)
+                
+                # 获取过期时间
+                expiration_date = datetime.fromisoformat(license_data['expiration_date'])
+                remaining = expiration_date - datetime.now()
+                
+                days = remaining.days
+                hours = remaining.seconds // 3600
+                minutes = (remaining.seconds % 3600) // 60
+                
+                # 设置显示文本
+                if days > 365:  # 超过1年显示永久授权
+                    text = "永久授权"
+                    color = "green"
+                else:
+                    if days > 0:
+                        text = f"许可证有效期：{days}天{hours}小时"
+                    else:
+                        text = f"许可证有效期：{hours}小时{minutes}分钟"
+                    
+                    # 设置颜色
+                    if days > 30:
+                        color = "green"
+                    elif days > 7:
+                        color = "orange"
+                    else:
+                        color = "red"
+                
+                self.license_label.config(text=text, foreground=color)
+                
+            except Exception as e:
+                print(f"Error parsing license data: {str(e)}")
+                self.license_label.config(text="许可证解析失败", foreground="red")
+            
+            # 每分钟更新一次
+            self.root.after(60000, self.update_license_status)
+            
+        except Exception as e:
+            print(f"License status update error: {str(e)}")
+            self.license_label.config(text="许可证状态检查失败", foreground="red")
+            # 即使出错也继续更新
+            self.root.after(60000, self.update_license_status)
 
     def create_tray_icon(self):
         """创建系统托盘图标"""
