@@ -81,8 +81,16 @@ class SnapSolverGUI:
         self.solving_ai_var = tk.StringVar(value="openai")
         ttk.Combobox(config_frame, textvariable=self.solving_ai_var, values=["openai", "claude"], 
                     state="readonly").grid(row=8, column=1, sticky=(tk.W, tk.E))
+        
+        # 提示词设置
+        ttk.Label(config_frame, text="解题提示设置", style='Title.TLabel').grid(row=14, column=0, columnspan=2, pady=(10,10), sticky=tk.W)
+
+        ttk.Label(config_frame, text="默认解题提示:").grid(row=15, column=0, sticky=tk.W)
+        self.solving_prompt_var = tk.StringVar(value="请详细分析这道题目并给出完整的解答思路和步骤。如果是选择题，请分析每个选项并说明选择的理由。")
+        prompt_entry = ttk.Entry(config_frame, textvariable=self.solving_prompt_var, width=50)
+        prompt_entry.grid(row=15, column=1, sticky=(tk.W, tk.E))
     
-    # 代理设置
+        # 代理设置
         ttk.Label(config_frame, text="代理设置", style='Title.TLabel').grid(row=9, column=0, columnspan=2, pady=(10,10), sticky=tk.W)
         
         self.use_proxy_var = tk.BooleanVar(value=False)
@@ -206,51 +214,88 @@ class SnapSolverGUI:
                 with open('.env', 'r', encoding='utf-8') as f:
                     for line in f:
                         if line.strip() and not line.startswith('#'):
-                            key, value = line.strip().split('=', 1)
-                            if key == 'HOST':
-                                self.host_var.set(value)
-                            elif key == 'PORT':
-                                self.port_var.set(value)
-                            elif key == 'OPENAI_API_KEY':
-                                self.openai_key_var.set(value)
-                            elif key == 'CLAUDE_API_KEY':
-                                self.claude_key_var.set(value)
-                            elif key == 'EXTRACTION_AI':
-                                self.extraction_ai_var.set(value.lower())
-                            elif key == 'SOLVING_AI':
-                                self.solving_ai_var.set(value.lower())
-                            elif key == 'USE_PROXY':
-                                self.use_proxy_var.set(value.lower() == 'true')
-                            elif key == 'PROXY_HOST':
-                                self.proxy_host_var.set(value)
-                            elif key == 'PROXY_PORT':
-                                self.proxy_port_var.set(value)
-                            elif key == 'PROXY_PROTOCOL':
-                                self.proxy_protocol_var.set(value.lower())
+                            try:
+                                key, value = line.strip().split('=', 1)
+                                if key == 'HOST':
+                                    self.host_var.set(value)
+                                elif key == 'PORT':
+                                    self.port_var.set(value)
+                                elif key == 'OPENAI_API_KEY':
+                                    self.openai_key_var.set(value)
+                                elif key == 'CLAUDE_API_KEY':
+                                    self.claude_key_var.set(value)
+                                elif key == 'EXTRACTION_AI':
+                                    self.extraction_ai_var.set(value.lower())
+                                elif key == 'SOLVING_AI':
+                                    self.solving_ai_var.set(value.lower())
+                                elif key == 'USE_PROXY':
+                                    self.use_proxy_var.set(value.lower() == 'true')
+                                elif key == 'PROXY_HOST':
+                                    self.proxy_host_var.set(value)
+                                elif key == 'PROXY_PORT':
+                                    self.proxy_port_var.set(value)
+                                elif key == 'PROXY_PROTOCOL':
+                                    self.proxy_protocol_var.set(value.lower())
+                                elif key == 'SOLVING_PROMPT':
+                                    # 如果配置文件中存在提示词，则加载它
+                                    # 否则保持默认提示词
+                                    if value.strip():
+                                        self.solving_prompt_var.set(value)
+                            except ValueError:
+                                # 如果某一行的格式不正确，跳过该行并继续
+                                print(f"Warning: Skipping invalid config line: {line.strip()}")
+                                continue
+                
                 self.set_status("配置加载完成")
+            else:
+                # 如果配置文件不存在，设置默认值
+                self.host_var.set("0.0.0.0")
+                self.port_var.set("3000")
+                self.extraction_ai_var.set("openai")
+                self.solving_ai_var.set("openai")
+                self.use_proxy_var.set(False)
+                self.proxy_host_var.set("127.0.0.1")
+                self.proxy_port_var.set("4780")
+                self.proxy_protocol_var.set("http")
+                self.solving_prompt_var.set("请详细分析这道题目并给出完整的解答思路和步骤。如果是选择题，请分析每个选项并说明选择的理由。")
+                
+                self.set_status("使用默认配置")
         except Exception as e:
             self.set_status(f"加载配置失败: {str(e)}", True)
+            # 出错时也设置默认值
+            self.host_var.set("0.0.0.0")
+            self.port_var.set("3000")
+            self.extraction_ai_var.set("openai")
+            self.solving_ai_var.set("openai")
+            self.use_proxy_var.set(False)
+            self.proxy_host_var.set("127.0.0.1")
+            self.proxy_port_var.set("4780")
+            self.proxy_protocol_var.set("http")
+            self.solving_prompt_var.set("请详细分析这道题目并给出完整的解答思路和步骤。如果是选择题，请分析每个选项并说明选择的理由。")
+
 
     def save_config(self):
-        """保存配置"""
         try:
             config_content = f"""# 基础配置
-HOST={self.host_var.get()}
-PORT={self.port_var.get()}
+    HOST={self.host_var.get()}
+    PORT={self.port_var.get()}
 
-# API Key 配置
-OPENAI_API_KEY={self.openai_key_var.get()}
-CLAUDE_API_KEY={self.claude_key_var.get()}
+    # API Key 配置
+    OPENAI_API_KEY={self.openai_key_var.get()}
+    CLAUDE_API_KEY={self.claude_key_var.get()}
 
-# AI选择
-EXTRACTION_AI={self.extraction_ai_var.get()}
-SOLVING_AI={self.solving_ai_var.get()}
+    # AI选择
+    EXTRACTION_AI={self.extraction_ai_var.get()}
+    SOLVING_AI={self.solving_ai_var.get()}
 
-# 代理设置
-USE_PROXY={str(self.use_proxy_var.get()).lower()}
-PROXY_HOST={self.proxy_host_var.get()}
-PROXY_PORT={self.proxy_port_var.get()}
-PROXY_PROTOCOL={self.proxy_protocol_var.get()}"""
+    # 解题提示设置
+    SOLVING_PROMPT={self.solving_prompt_var.get()}
+
+    # 代理设置
+    USE_PROXY={str(self.use_proxy_var.get()).lower()}
+    PROXY_HOST={self.proxy_host_var.get()}
+    PROXY_PORT={self.proxy_port_var.get()}
+    PROXY_PROTOCOL={self.proxy_protocol_var.get()}"""
 
             with open('.env', 'w', encoding='utf-8') as f:
                 f.write(config_content)

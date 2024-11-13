@@ -32,6 +32,11 @@ const config = {
         port: parseInt(process.env.PROXY_PORT) || 4780,
         protocol: (process.env.PROXY_PROTOCOL || 'http').toLowerCase().trim()
     },
+
+    // 添加解题提示配置
+    solving: {
+        defaultPrompt: process.env.SOLVING_PROMPT || '请详细分析这道题目并给出完整的解答思路和步骤。如果是选择题，请分析每个选项并说明选择的理由。'
+    },
     
     imageProcessing: {
         maxFileSize: '100mb'

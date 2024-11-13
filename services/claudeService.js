@@ -76,6 +76,7 @@ class ClaudeService {
     static async solveProblem(content, isImage = false) {
         try {
             const client = this.createAxiosInstance();
+            const prompt = config.solving.defaultPrompt;
             
             const messages = isImage ? [
                 {
@@ -91,17 +92,17 @@ class ClaudeService {
                         },
                         {
                             type: 'text',
-                            text: '请解答图中的题目。如果是选择题，请先仔细分析题目中的每一个选项，然后给我正确答案。'
+                            text: `${prompt}\n\n请解答图中的题目。`
                         }
                     ]
                 }
             ] : [
                 {
                     role: 'user',
-                    content: `请解答以下题目。如果是选择题，请先仔细分析题目中的每一个选项，然后给我正确答案。\n\n${content}`
+                    content: `${prompt}\n\n请解答以下题目：\n\n${content}`
                 }
             ];
-
+    
             const response = await client.post('https://api.anthropic.com/v1/messages', {
                 model: config.claude.model,
                 messages: messages,
