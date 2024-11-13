@@ -1,11 +1,92 @@
-.env 
-node_modules
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Dependencies
+node_modules/
+/venv/
+/.venv/
+/env/
+/.env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Build outputs
+dist/
+build/
+*.spec
 System.py
 System.spec
 
-dist
-build
-
+# Logs
 logs/
-
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 debug.log
+lerna-debug.log*
+
+# Python cache
+__pycache__/
+*.pyc
+.Python
+utils/__pycache__/
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IDE - PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# IDE - Visual Studio
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Test coverage
+coverage/
+.coverage
+htmlcov/
+
+# Temp files
+*.tmp
+*.temp
+*~
+
+# Package files
+*.tgz
+*.tar.gz
+*.zip
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
