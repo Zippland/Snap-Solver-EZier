@@ -233,14 +233,24 @@ class SnapSolverGUI:
 
     def create_tray_icon(self):
         """创建系统托盘图标"""
-        # 创建一个简单的图标（16x16 的纯色图标）
-        image = Image.new('RGB', (16, 16), color='purple')
-        menu = pystray.Menu(
-            pystray.MenuItem("显示窗口", self.show_window),
-            pystray.MenuItem("退出程序", self.quit_application)
-        )
-        self.icon = pystray.Icon("snap-solver", image, "Snap-Solver", menu)
-        threading.Thread(target=self.icon.run, daemon=True).start()
+        try:
+            # 加载图标文件
+            icon_path = os.path.join(os.path.dirname(__file__), 'assets', 'tray_icon.png')
+            if os.path.exists(icon_path):
+                # 如果存在自定义图标就使用它
+                image = Image.open(icon_path)
+            else:
+                # 否则创建一个默认图标
+                image = Image.new('RGB', (64, 64), color='purple')
+                
+            menu = pystray.Menu(
+                pystray.MenuItem("显示窗口", self.show_window),
+                pystray.MenuItem("退出程序", self.quit_application)
+            )
+            self.icon = pystray.Icon("snap-solver", image, "Snap-Solver", menu)
+            threading.Thread(target=self.icon.run, daemon=True).start()
+        except Exception as e:
+            print(f"创建托盘图标失败: {str(e)}")
 
     def show_window(self, icon=None, item=None):
         """显示窗口"""

@@ -7,6 +7,5 @@ strCurrentPath = oFSO.GetParentFolderName(WScript.ScriptFullName)
 ' 构建 init.py 的完整路径
 strInitPath = strCurrentPath & "\init.py"
 
-' 使用 pythonw.exe 无窗口运行 init.py
-cmd = "cmd /c start /b pythonw """ & strInitPath & """"
-oShell.Run cmd, 0, False
+' 运行 init.py
+oShell.Run "python """ & strInitPath & """", 0, True
