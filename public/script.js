@@ -1,3 +1,4 @@
+// public\script.js
 const socket = io();
 const uploadedImage = document.getElementById('uploaded-image');
 const solveWithImageButton = document.getElementById('solve-with-image-button');

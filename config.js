@@ -1,3 +1,4 @@
+// config.js
 require('dotenv').config();
 
 const config = {
@@ -8,7 +9,7 @@ const config = {
     // OpenAI Configuration
     openai: {
         apiKey: process.env.OPENAI_API_KEY,
-        model: 'gpt-4o-2024-08-06',
+        model: 'chatgpt-4o-latest',
         maxTokens: 1000
     },
     

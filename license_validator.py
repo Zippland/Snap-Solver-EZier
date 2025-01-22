@@ -1,3 +1,4 @@
+# license_validator.py
 import tkinter as tk
 from tkinter import ttk, messagebox
 import sys

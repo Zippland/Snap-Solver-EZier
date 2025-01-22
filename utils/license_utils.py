@@ -1,3 +1,4 @@
+# utils\license_utils.py
 import hashlib
 import platform
 import subprocess

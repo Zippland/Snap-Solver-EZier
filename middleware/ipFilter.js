@@ -1,3 +1,4 @@
+// middleware\ipFilter.js
 const config = require('../config');
 
 const ipFilter = (req, res, next) => {

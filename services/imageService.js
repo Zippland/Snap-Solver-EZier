@@ -1,3 +1,4 @@
+// services\imageService.js
 const sharp = require('sharp');
 
 class ImageService {

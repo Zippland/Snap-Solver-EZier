@@ -1,3 +1,4 @@
+// controllers\imageController.js
 const ImageService = require('../services/imageService');
 const AIServiceFactory = require('../services/aiServiceFactory');
 

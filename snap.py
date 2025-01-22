@@ -1,3 +1,4 @@
+# snap.py
 import keyboard
 from PIL import ImageGrab
 import io
