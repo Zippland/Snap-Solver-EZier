@@ -9,7 +9,7 @@ const config = {
     // OpenAI Configuration
     openai: {
         apiKey: process.env.OPENAI_API_KEY,
-        model: 'chatgpt-4o-latest',
+        model: 'gpt-4o-2024-11-20',
         maxTokens: 1000
     },
     
